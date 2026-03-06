@@ -1,0 +1,365 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #fafafa;
+  color: #262626;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 1.2rem;
+  color: #8e8e8e;
+}
+
+.app-layout {
+  max-width: 600px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: white;
+  border-bottom: 1px solid #dbdbdb;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar h1 {
+  font-family: 'Georgia', serif;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.navbar nav {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.navbar nav a {
+  text-decoration: none;
+  color: #262626;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.navbar nav a:hover {
+  color: #0095f6;
+}
+
+.btn-logout {
+  background: none;
+  border: none;
+  color: #0095f6;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #fafafa;
+}
+
+.login-box {
+  background: white;
+  border: 1px solid #dbdbdb;
+  border-radius: 4px;
+  padding: 40px;
+  width: 350px;
+  text-align: center;
+}
+
+.login-box h1 {
+  font-family: 'Georgia', serif;
+  font-size: 2rem;
+  margin-bottom: 24px;
+}
+
+.login-box input {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border: 1px solid #dbdbdb;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  background: #fafafa;
+}
+
+.login-box input:focus {
+  outline: none;
+  border-color: #a8a8a8;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 10px;
+  background: #0095f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.btn-primary:hover {
+  background: #1877f2;
+}
+
+.btn-primary:disabled {
+  background: #b2dffc;
+  cursor: not-allowed;
+}
+
+.toggle-auth {
+  margin-top: 16px;
+  font-size: 0.85rem;
+  color: #8e8e8e;
+}
+
+.toggle-auth button {
+  background: none;
+  border: none;
+  color: #0095f6;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.error-msg {
+  color: #ed4956;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
+.feed {
+  padding: 16px;
+}
+
+.create-post {
+  background: white;
+  border: 1px solid #dbdbdb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.create-post textarea {
+  width: 100%;
+  border: none;
+  resize: none;
+  font-size: 0.95rem;
+  padding: 8px 0;
+  font-family: inherit;
+}
+
+.create-post textarea:focus {
+  outline: none;
+}
+
+.create-post-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #efefef;
+}
+
+.btn-upload {
+  background: none;
+  border: 1px solid #dbdbdb;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #262626;
+}
+
+.btn-post {
+  background: #0095f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.btn-post:disabled {
+  background: #b2dffc;
+  cursor: not-allowed;
+}
+
+.image-preview {
+  margin-top: 8px;
+  position: relative;
+}
+
+.image-preview img {
+  width: 100%;
+  border-radius: 4px;
+  max-height: 300px;
+  object-fit: cover;
+}
+
+.btn-remove-image {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.post-card {
+  background: white;
+  border: 1px solid #dbdbdb;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+}
+
+.post-author {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.post-time {
+  font-size: 0.75rem;
+  color: #8e8e8e;
+}
+
+.post-image {
+  width: 100%;
+  max-height: 500px;
+  object-fit: cover;
+}
+
+.post-content {
+  padding: 12px 16px;
+}
+
+.post-text {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.post-actions {
+  display: flex;
+  gap: 16px;
+  padding: 8px 16px 12px;
+}
+
+.btn-like {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #262626;
+}
+
+.btn-like.liked {
+  color: #ed4956;
+}
+
+.btn-delete {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #8e8e8e;
+  margin-left: auto;
+}
+
+.btn-delete:hover {
+  color: #ed4956;
+}
+
+.profile-page {
+  padding: 24px 16px;
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #dbdbdb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  font-size: 2rem;
+  color: white;
+}
+
+.profile-email {
+  color: #8e8e8e;
+  font-size: 0.9rem;
+}
+
+.profile-stats {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 12px;
+}
+
+.profile-stats div {
+  text-align: center;
+}
+
+.profile-stats strong {
+  display: block;
+  font-size: 1.1rem;
+}
+
+.profile-stats span {
+  font-size: 0.8rem;
+  color: #8e8e8e;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #8e8e8e;
+}
