@@ -61,21 +61,38 @@ letsStudySaaS/
 ### Step 1: Supabase 프로젝트 생성
 
 1. [supabase.com](https://supabase.com)에 접속하여 회원가입/로그인
-2. "New Project" 클릭
-3. 프로젝트 이름: `minigram`
-4. Database Password 설정 (기억해두세요!)
-5. Region: `Northeast Asia (Tokyo)` 선택
-6. "Create new project" 클릭 후 약 2분 대기
+2. 대시보드에서 **"New Project"** 버튼 클릭
+3. 아래 항목 입력:
+   - **Project name**: `minigram`
+   - **Database Password**: 원하는 비밀번호 입력 (나중에 필요하니 메모해두세요!)
+   - **Region**: `Northeast Asia (Tokyo)` 선택 (한국에서 가장 빠름)
+4. **"Create new project"** 클릭
+5. 프로젝트 생성까지 약 1~2분 소요됩니다. 완료될 때까지 기다려주세요.
 
-### Step 2: 테이블 생성
+### Step 2: 이메일 인증 비활성화 (개발 편의)
+
+> 기본적으로 Supabase는 회원가입 시 이메일 인증을 요구합니다.
+> 개발 단계에서는 번거로우니 비활성화합니다.
+
+1. 왼쪽 메뉴에서 **Authentication** 클릭
+2. 상단 탭에서 **Providers** 클릭
+3. **Email** 항목을 클릭하여 펼침
+4. **"Confirm email"** 토글을 **OFF** 으로 변경
+5. **Save** 클릭
+
+> **왜?**: 이 설정을 끄면 회원가입 즉시 로그인이 가능합니다.
+> 실제 서비스에서는 ON으로 두어야 하지만, 학습 목적이므로 OFF로 진행합니다.
+
+### Step 3: 테이블 생성
 
 1. 왼쪽 메뉴에서 **SQL Editor** 클릭
-2. "New Query" 클릭
-3. `supabase-schema.sql` 파일의 내용을 복사하여 붙여넣기
-4. **Run** 클릭
+2. 상단의 **"New Query"** 버튼 클릭
+3. 아래 SQL 코드를 **전체 복사**하여 에디터에 붙여넣기
+4. 우측 하단의 **"Run"** 버튼 클릭 (또는 Ctrl+Enter)
+5. 하단에 `Success. No rows returned` 메시지가 나오면 성공!
 
 ```sql
--- posts 테이블: 게시물 저장
+-- 1. posts 테이블: 게시물 저장
 CREATE TABLE posts (
   id BIGSERIAL PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
@@ -85,7 +102,7 @@ CREATE TABLE posts (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- likes 테이블: 좋아요 저장
+-- 2. likes 테이블: 좋아요 저장
 CREATE TABLE likes (
   id BIGSERIAL PRIMARY KEY,
   post_id BIGINT REFERENCES posts(id) ON DELETE CASCADE NOT NULL,
@@ -93,29 +110,127 @@ CREATE TABLE likes (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(post_id, user_id)
 );
+
+-- 3. RLS (Row Level Security) 활성화
+ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE likes ENABLE ROW LEVEL SECURITY;
+
+-- 4. Posts 정책
+CREATE POLICY "Anyone can read posts"
+  ON posts FOR SELECT USING (true);
+CREATE POLICY "Users can create posts"
+  ON posts FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own posts"
+  ON posts FOR DELETE USING (auth.uid() = user_id);
+
+-- 5. Likes 정책
+CREATE POLICY "Anyone can read likes"
+  ON likes FOR SELECT USING (true);
+CREATE POLICY "Users can like posts"
+  ON likes FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can unlike posts"
+  ON likes FOR DELETE USING (auth.uid() = user_id);
 ```
 
-> **배울 점**: `REFERENCES`는 외래키(Foreign Key)로, 테이블 간의 관계를 정의합니다.
-> `UNIQUE(post_id, user_id)`는 한 사용자가 같은 게시물에 중복 좋아요를 방지합니다.
+> **배울 점**:
+> - `REFERENCES`는 외래키(Foreign Key)로, 테이블 간의 관계를 정의합니다.
+> - `UNIQUE(post_id, user_id)`는 한 사용자가 같은 게시물에 중복 좋아요를 방지합니다.
+> - `RLS(Row Level Security)`는 누가 어떤 데이터를 읽고/쓰고/삭제할 수 있는지 제어합니다.
+> - `auth.uid()`는 현재 로그인한 사용자의 ID를 반환하는 Supabase 내장 함수입니다.
 
-### Step 3: Storage 설정 (이미지 업로드용)
+### Step 4: 테이블 확인
+
+1. 왼쪽 메뉴에서 **Table Editor** 클릭
+2. `posts`와 `likes` 두 개의 테이블이 보이면 성공!
+3. 각 테이블을 클릭하면 컬럼 구조를 확인할 수 있습니다.
+
+### Step 5: Storage 설정 (이미지 업로드용)
+
+#### 5-1. 버킷 생성
 
 1. 왼쪽 메뉴에서 **Storage** 클릭
-2. "New bucket" 클릭
-3. 이름: `post-images`, **Public bucket** 체크
-4. "Create bucket" 클릭
-5. 생성된 버킷 클릭 > **Policies** 탭
-6. 아래 정책 추가:
-   - SELECT: `true` (누구나 이미지 조회 가능)
-   - INSERT: `auth.role() = 'authenticated'` (로그인한 사용자만 업로드)
+2. **"New bucket"** 버튼 클릭
+3. 설정:
+   - **Name of bucket**: `post-images`
+   - **Public bucket**: 체크 ON (토글 활성화)
+4. **"Create bucket"** 클릭
 
-### Step 4: API 키 확인
+#### 5-2. Storage 정책 추가
 
-1. 왼쪽 메뉴 **Settings** > **API**
-2. 아래 두 값을 메모:
-   - **Project URL**: `https://xxxxx.supabase.co`
-   - **anon public key**: `eyJhbG...` (긴 문자열)
-   - **service_role key**: Backend용 (절대 프론트엔드에 노출하지 마세요!)
+버킷 생성 후, 상단 탭에서 **Policies** 클릭 > `POST-IMAGES` 항목에서 정책을 추가합니다.
+
+**정책 1: 이미지 조회 허용 (SELECT)**
+
+1. `POST-IMAGES` 옆의 **"New policy"** 클릭
+2. **"For full customization"** 선택
+3. 아래와 같이 설정:
+   - **Policy name**: `allow public read`
+   - **Allowed operation**: `SELECT` 체크
+   - **Target roles**: 그대로 두기 (Defaults to all (public) roles)
+   - **Policy definition**: `bucket_id = 'post-images'` (자동 입력된 그대로)
+4. **Review** 클릭 > **Save policy** 클릭
+
+**정책 2: 이미지 업로드 허용 (INSERT)**
+
+1. 다시 **"New policy"** 클릭 > **"For full customization"** 선택
+2. 아래와 같이 설정:
+   - **Policy name**: `allow authenticated upload`
+   - **Allowed operation**: `INSERT` 체크
+   - **Target roles**: 드롭다운에서 `authenticated` 선택
+   - **Policy definition**: `bucket_id = 'post-images'` (자동 입력된 그대로)
+3. **Review** 클릭 > **Save policy** 클릭
+
+**정책 3: 이미지 삭제 허용 (DELETE)**
+
+1. 다시 **"New policy"** 클릭 > **"For full customization"** 선택
+2. 아래와 같이 설정:
+   - **Policy name**: `allow owner delete`
+   - **Allowed operation**: `DELETE` 체크
+   - **Target roles**: 드롭다운에서 `authenticated` 선택
+   - **Policy definition**: `bucket_id = 'post-images'` (자동 입력된 그대로)
+3. **Review** 클릭 > **Save policy** 클릭
+
+> **배울 점**:
+> - **SELECT**: 누구나 이미지를 볼 수 있음 (공개 조회)
+> - **INSERT**: 로그인한 사용자(`authenticated`)만 이미지 업로드 가능
+> - **DELETE**: 로그인한 사용자만 이미지 삭제 가능
+> - 이런 정책이 없으면 Storage에 접근이 차단됩니다!
+
+### Step 6: API 키 확인
+
+1. 왼쪽 메뉴에서 **Settings** (톱니바퀴 아이콘) 클릭
+2. **API** 탭 클릭
+3. 아래 세 가지 값을 메모해두세요:
+
+| 항목 | 용도 | 어디에 입력? |
+|------|------|-------------|
+| **Project URL** | Supabase 서버 주소 | Frontend `.env`, Backend `.env` |
+| **anon public key** | 프론트엔드용 공개 키 | Frontend `.env` |
+| **service_role key** | 백엔드용 관리자 키 | Backend `.env` |
+
+> **주의**: `service_role key`는 모든 RLS 정책을 우회할 수 있는 강력한 키입니다.
+> 절대로 Frontend 코드나 GitHub에 노출하지 마세요!
+
+### Step 7: 환경변수 파일 설정
+
+**Frontend** (`frontend/.env` 파일 생성):
+```
+VITE_SUPABASE_URL=https://xxxxx.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGci...여기에_anon_key_붙여넣기
+VITE_API_URL=http://localhost:5000
+```
+
+**Backend** (`backend/.env` 파일 생성):
+```
+SUPABASE_URL=https://xxxxx.supabase.co
+SUPABASE_SERVICE_KEY=eyJhbGci...여기에_service_role_key_붙여넣기
+```
+
+> **Tip**: `.env.example` 파일을 복사하면 편합니다.
+> ```bash
+> cp frontend/.env.example frontend/.env
+> cp backend/.env.example backend/.env
+> ```
 
 ---
 

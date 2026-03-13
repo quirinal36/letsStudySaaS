@@ -149,6 +149,12 @@ body {
   margin-bottom: 8px;
 }
 
+.success-msg {
+  color: #2ecc71;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
 .feed {
   padding: 16px;
 }

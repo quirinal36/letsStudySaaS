@@ -7,18 +7,29 @@ export default function Login() {
   const [isSignUp, setIsSignUp] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [message, setMessage] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError('')
+    setMessage('')
 
-    const { error } = isSignUp
-      ? await supabase.auth.signUp({ email, password })
-      : await supabase.auth.signInWithPassword({ email, password })
-
-    if (error) {
-      setError(error.message)
+    if (isSignUp) {
+      const { data, error } = await supabase.auth.signUp({ email, password })
+      if (error) {
+        setError(error.message)
+      } else if (data?.user?.identities?.length === 0) {
+        setError('This email is already registered.')
+      } else {
+        setMessage('Sign up successful! You can now log in.')
+        setIsSignUp(false)
+      }
+    } else {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) {
+        setError(error.message)
+      }
     }
     setLoading(false)
   }
@@ -29,6 +40,7 @@ export default function Login() {
         <h1>MiniGram</h1>
         <form onSubmit={handleSubmit}>
           {error && <p className="error-msg">{error}</p>}
+          {message && <p className="success-msg">{message}</p>}
           <input
             type="email"
             placeholder="Email"
